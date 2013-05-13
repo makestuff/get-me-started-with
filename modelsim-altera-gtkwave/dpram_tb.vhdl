@@ -88,17 +88,16 @@ begin
 		writeData <= (others => '0');
 		writeEnable <= '0';
 		readAddr <= (others => '1');
-		wait until rising_edge(sysClk);
 		while ( not endfile(inFile) ) loop
 			readline(inFile, inLine);
 			while ( inLine.all'length = 0 or inLine.all(1) = '#' or inLine.all(1) = ht or inLine.all(1) = ' ' ) loop
 				readline(inFile, inLine);
 			end loop;
+			wait until rising_edge(sysClk);
 			writeAddr <= to_2(inLine.all(1)) & to_4(inLine.all(2)) & to_4(inLine.all(3));
 			writeData <= to_4(inLine.all(5));
 			writeEnable <= to_1(inLine.all(7));
 			readAddr <= to_2(inLine.all(9)) & to_4(inLine.all(10)) & to_4(inLine.all(11));
-			wait for 10 ns;
 			write(outLine, from_4("00" & writeAddr(9 downto 8)) & from_4(writeAddr(7 downto 4)) & from_4(writeAddr(3 downto 0)));
 			write(outLine, ' ');
 			write(outLine, from_4(writeData));
@@ -111,9 +110,7 @@ begin
 			write(outLine, ' ');
 			write(outLine, from_4(readData));
 			writeline(outFile, outLine);
-			wait for 10 ns;
 		end loop;
-
 		writeAddr <= (others => '0');
 		writeData <= (others => '0');
 		writeEnable <= '0';

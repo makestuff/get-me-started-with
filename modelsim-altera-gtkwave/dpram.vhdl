@@ -175,7 +175,7 @@ END SYN;
 -- Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_PORT_A NUMERIC "3"
 -- Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_PORT_B NUMERIC "3"
 -- Retrieval info: PRIVATE: REGdata NUMERIC "1"
--- Retrieval info: PRIVATE: REGq NUMERIC "0"
+-- Retrieval info: PRIVATE: REGq NUMERIC "1"
 -- Retrieval info: PRIVATE: REGrdaddress NUMERIC "1"
 -- Retrieval info: PRIVATE: REGrren NUMERIC "1"
 -- Retrieval info: PRIVATE: REGwraddress NUMERIC "1"
@@ -228,7 +228,7 @@ END SYN;
 -- Retrieval info: CONNECT: q 0 0 4 0 @q_b 0 0 4 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL dpram.vhd TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL dpram.inc FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL dpram.cmp TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL dpram.cmp FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL dpram.bsf FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL dpram_inst.vhd FALSE
 -- Retrieval info: LIB_FILE: altera_mf
