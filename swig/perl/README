@@ -1,0 +1,86 @@
+SWIG PERL BINDING EXAMPLE
+
+Over the years I've settled on a consistent convention or pattern for API design
+in C:
+
+if ( the operation can fail ) {
+    1) Make the function signature ReturnType f(..., const char **error);
+    2) When f() detects an error, it returns an error code, which is typically
+       an enum type, but may be a plain int. Zero is always used to denote
+       success. If the "error" parameter is non-NULL, f() uses it to returns a
+       pointer to a malloc()'d error string in *error. This must be free()'d
+       ultimately by a call to errFree().
+    3) Since the meaning of the value returned has been defined, any other
+       information to be communicated back to the caller must use "out"
+       parameters (i.e pointers to variables which are updated by f()).
+} else {
+    1) Make the function signature ReturnType f(...);
+    2) The ReturnType is used if there is just one piece of information to be
+       communicated back to the caller.
+    3) If there is more than one piece of information to be communicated back to
+       the caller, use "out" parameters (i.e pointers to variables which are
+       updated by f()).
+}
+
+Unfortunately this means that if you have a function fooCreate(), used thus:
+
+    struct Foo *foo = fooCreate(...);
+
+...and then later discover failure modes for it, you have to change the usage:
+
+    int retVal = 0;
+    const char *error = NULL;
+    struct Foo *foo = NULL;
+    FooStatus fStatus = fooCreate(&foo, ..., &error);
+    CHECK_STATUS(fStatus, SOME_ERROR_CODE, cleanup);
+    :
+cleanup:
+    return retVal;
+
+That's fine for C programmers who are used to such things. But pretty much all
+modern languages (with the possible exception [pun intended] of Go) support
+exceptions, so the above caller idiom transformation would go from:
+
+    foo = fooCreate(...);
+
+...to something like:
+
+    try {
+        foo = fooCreate();
+    }
+    catch ( ... ) {
+        :
+    }
+    finally {
+        :
+    }
+
+So here's a SWIG binding for mapping the error-code-plus-error-string idiom in C
+to Perl. The binding allows a return-by-return function to be called in the same
+way a call-by-out-param function:
+
+    use myret;
+
+    $x = myret::createFoo1();
+    print "x = $x\n";
+    myret::destroyFoo($x);
+
+    $y = myret::createFoo2();
+    print "y = $y\n";
+    myret::destroyFoo($y);
+
+You can try it for yourself on Linux as follows. You'll need SWIG installed.
+
+    chris@wheezy-x64$ make
+    swig -perl5 myret.i
+    gcc <<snip>> -shared myret_wrap.c -o myret.so
+    ./myret.pl
+    malloc() returned 0x0001AE5940
+    x = _p_Foo=SCALAR(0x1acfb78)
+    About to free(0x0001AE5940)
+    malloc() returned 0x0001AE5940
+    y = _p_Foo=SCALAR(0x1aebf08)
+    About to free(0x0001AE5940)
+    RuntimeError You cannot call this with 10 at ./myret.pl line 13.
+    make: *** [all] Error 255
+    chris@wheezy-x64$ 
