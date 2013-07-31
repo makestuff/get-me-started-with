@@ -1,0 +1,79 @@
+VISUALISING THE COUNTING CHANGE PROBLEM
+
+In the first chapter of SICP[1] there is a problem where you have to count the
+various different ways of making up an amount of money A using N coin
+denominations. For example, you can make 16¢ in six different ways:
+
+  10¢, 5¢, 1¢
+  10¢, 1¢ x 6
+  5¢, 5¢, 5¢, 1¢
+  5¢, 5¢, 1¢ x 6
+  5¢, 1¢ x 11
+  1¢ x 16
+
+Note: in the USA they have coins denominated 1¢, 5¢, 10¢, 25¢ & 50¢.
+
+The solution given is this:
+
+  (define (count-change amount)
+    (cc amount 5)
+  )
+  (define (cc amount kinds-of-coins)
+    (cond
+      ((= amount 0) 1)
+      ((or (< amount 0) (= kinds-of-coins 0)) 0)
+      (else
+        (+
+          (cc
+            amount
+            (- kinds-of-coins 1)
+          )
+          (cc
+            (- amount (first-denomination kinds-of-coins))
+            kinds-of-coins
+          )
+        )
+      )
+    )
+  )
+  (define (first-denomination kinds-of-coins)
+    (cond
+      ((= kinds-of-coins 1) 1)
+      ((= kinds-of-coins 2) 5)
+      ((= kinds-of-coins 3) 10)
+      ((= kinds-of-coins 4) 25)
+      ((= kinds-of-coins 5) 50)
+    )
+  )
+
+But it's quite hard to see why, say, (count-change 16) gives 6.
+
+So this little program uses graphviz to render a node-graph where each node is a
+call to cc(), making the operation of the code much easier to understand. You
+can view the graph for a particular amount like this:
+
+  make AMOUNT=16 view
+
+Or you can generate graphs for a range of amounts like this:
+
+  i=1; while [ $i -le 16 ]; do make AMOUNT=$i; i=$(($i + 1)); done
+
+The nodes are colour-coded:
+
+  * Red nodes represent the degenerate case where we're trying to make up a
+    negative amount, which is not possible so the result is trivially 0.
+
+  * Purple nodes represent the degenerate case where the set of denominations
+    we have to play with is empty; again it's not possible to make any amount
+    from an empty set of denominations, so the result is trivially 0.
+
+  * Yellow nodes represent the degenerate case where the amount we want to make
+    is 0¢. Irrespective of the set of denominations, there's always exactly one
+    way to make up 0¢, so the result is trivially 1.
+
+So far as I can tell, the two zero-degenerate cases are mutually exclusive, but
+I cannot prove that. There's an assert in the code just in case it happens.
+
+Have fun!
+
+[1]http://mitpress.mit.edu/books/structure-and-interpretation-computer-programs
