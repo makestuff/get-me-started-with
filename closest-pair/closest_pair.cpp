@@ -140,12 +140,12 @@ pair<PointPtr, PointPtr> findClosestDNC(
 					const PointPtr *const e = px + pxsize;
 					const int y = (*pyi)->getY();
 					bool inR = false;
-					while ( p < e && (*p)->getX() == xmid ) {
+					do {
 						if ( (*p)->getY() == y ) {
 							inR = true; break;
 						}
 						++p;
-					}
+					} while ( p < e && (*p)->getX() == xmid );
 					if ( inR ) {
 						ry.push_back(*pyi);
 					} else {
