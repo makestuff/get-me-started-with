@@ -8,23 +8,19 @@ int isatty(int fd) {
 	static FuncPtr realImpl = NULL;
 	if ( !realImpl ) {
 		void *const handle = dlopen("libc.so.6", RTLD_LAZY);
-		const char *error;
 		if ( !handle ) {
-			fputs(dlerror(), stderr);
+			fprintf(stderr, "dlopen() failed: %s\n", dlerror());
 			exit(1);
 		}
 		#pragma GCC diagnostic push
 		#pragma GCC diagnostic ignored "-Wpedantic"
 		realImpl = (FuncPtr)dlsym(handle, "isatty");
 		#pragma GCC diagnostic pop
-
-		error = dlerror();
-		if ( error ) {
-			fprintf(stderr, "dlsym() failed: %s\n", error);
+		if ( !realImpl ) {
+			fprintf(stderr, "dlsym() failed: %s\n", dlerror());
 			exit(1);
 		}
 	}
-	//printf("Calling isatty(%d)\n", fd);
 	if ( fd == STDOUT_FILENO || fd == STDERR_FILENO ) {
 		return 1;
 	} else {
